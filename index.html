@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ледовый забег: вопросы после прыжков</title>
+  <style>
+    :root {
+      --pink: #ff1493;
+      --turquoise: #86d2c5;
+      --dark: #26264a;
+      --white: #ffffff;
+      --ice: #eafcff;
+      --soft: #f7ffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #ffffff 0%, #eafcff 45%, #c9f3ee 100%);
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--dark);
+      overflow: hidden;
+    }
+
+    .game-shell {
+      width: min(1320px, 98vw);
+      position: relative;
+      border: 4px solid var(--dark);
+      border-radius: 28px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff 0%, #ecffff 56%, #d9fbf6 100%);
+      box-shadow: 0 24px 80px rgba(38, 38, 74, 0.22);
+    }
+
+    .topbar {
+      position: absolute;
+      z-index: 4;
+      top: 18px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 2px solid var(--dark);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(10px);
+      font-size: clamp(13px, 1.6vw, 16px);
+      font-weight: 800;
+      box-shadow: 0 8px 22px rgba(38, 38, 74, 0.12);
+    }
+
+    .badge span {
+      color: var(--pink);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: min(78vh, 760px);
+      min-height: 620px;
+      cursor: pointer;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background: rgba(234, 252, 255, 0.72);
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .card {
+      width: min(760px, 94vw);
+      border: 4px solid var(--dark);
+      border-radius: 28px;
+      background: var(--white);
+      box-shadow: 0 22px 60px rgba(38, 38, 74, 0.24);
+      padding: clamp(24px, 4vw, 42px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: var(--turquoise);
+      opacity: 0.28;
+      top: -70px;
+      left: -50px;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: var(--pink);
+      opacity: 0.16;
+      right: -70px;
+      bottom: -80px;
+    }
+
+    .card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .kicker {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 8px 14px;
+      border: 2px solid var(--dark);
+      border-radius: 999px;
+      background: var(--turquoise);
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--dark);
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 0.95;
+      margin-bottom: 18px;
+      letter-spacing: -0.04em;
+    }
+
+    h2 {
+      font-size: clamp(22px, 3.6vw, 38px);
+      line-height: 1.05;
+      margin-bottom: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .lead {
+      font-size: clamp(16px, 2vw, 20px);
+      line-height: 1.45;
+      margin: 0 auto 22px;
+      max-width: 650px;
+      font-weight: 700;
+    }
+
+    .question-text {
+      font-size: clamp(20px, 2.6vw, 30px);
+      line-height: 1.25;
+      margin: 16px auto 28px;
+      max-width: 680px;
+      font-weight: 900;
+      color: var(--dark);
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 3px solid var(--dark);
+      border-radius: 18px;
+      padding: 14px 22px;
+      background: var(--pink);
+      color: var(--white);
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 0 var(--dark);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s ease;
+    }
+
+    button.secondary {
+      background: var(--turquoise);
+      color: var(--dark);
+    }
+
+    button:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 var(--dark);
+    }
+
+    .hint {
+      margin-top: 18px;
+      font-size: 14px;
+      line-height: 1.4;
+      opacity: 0.78;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        align-items: flex-start;
+        padding-top: 12px;
+      }
+
+      .game-shell {
+        width: 96vw;
+        border-radius: 20px;
+      }
+
+      .topbar {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        padding: 8px 10px;
+      }
+
+      canvas {
+        min-height: 620px;
+        height: 84vh;
+      }
+
+      .overlay {
+        padding: 14px;
+      }
+
+      .card {
+        border-radius: 22px;
+        padding: 24px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-shell" aria-label="Игра про фигурный конёк">
+    <div class="topbar">
+      <div class="badge">Очки: <span id="score">0</span></div>
+      <div class="badge">Прыжки: <span id="jumpCounter">0</span></div>
+    </div>
+
+    <canvas id="game" width="1320" height="760"></canvas>
+
+    <section class="overlay" id="startOverlay">
+      <div class="card">
+        <h1>Мечты не могут уберечь от падений. Но всегда помогают подняться</h1>
+        <p class="lead">© Евгения Медведева</p>
+        <div class="button-row">
+          <button id="startButton">Начать игру</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="overlay hidden" id="questionOverlay">
+      <div class="card">
+        <span class="kicker" id="questionKicker">Вопрос</span>
+        <h2>Пауза после прыжка</h2>
+        <p class="question-text" id="questionText"></p>
+        <div class="button-row">
+          <button id="continueButton">Продолжить игру</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="overlay hidden" id="gameOverOverlay">
+      <div class="card">
+        <span class="kicker">Финиш</span>
+        <h2>Конёк зацепил препятствие</h2>
+        <p class="lead">Текущий счёт: <strong id="finalScore">0</strong>. Успешных прыжков: <strong id="finalJumps">0</strong>.</p>
+        <div class="button-row">
+          <button id="pathContinueButton">Продолжить свой путь</button>
+          <button class="secondary" id="restartButton">Начать сначала</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const canvas = document.getElementById('game');
+      const ctx = canvas.getContext('2d');
+
+      const scoreEl = document.getElementById('score');
+      const jumpCounterEl = document.getElementById('jumpCounter');
+      const startOverlay = document.getElementById('startOverlay');
+      const questionOverlay = document.getElementById('questionOverlay');
+      const gameOverOverlay = document.getElementById('gameOverOverlay');
+      const questionTextEl = document.getElementById('questionText');
+      const questionKickerEl = document.getElementById('questionKicker');
+      const finalScoreEl = document.getElementById('finalScore');
+      const finalJumpsEl = document.getElementById('finalJumps');
+
+      const startButton = document.getElementById('startButton');
+      const continueButton = document.getElementById('continueButton');
+      const pathContinueButton = document.getElementById('pathContinueButton');
+      const restartButton = document.getElementById('restartButton');
+
+      const questions = [
+        'Как спорт влияет на жизнь и какие правила из спорта, по Вашему опыту, можно применить не только в жизни, но и в медиа?',
+        'Как Вы сегодня сочетаете эти две разные энергии дисциплины и свободы,  не боитесь открываться аудитории?',
+        'Как Вы работаете с критикой в медиаполе? Был ли у Вас случай, когда Вы сумели превратить негативный комментарий в пользу для себя или своего контента?',
+        'Как взять новый вектор в карьере и не бояться нового этапа?',
+        'Как Вы проверяете, что новый путь действительно ваш, а не просто навязан ожиданиями аудитории, окружения или рынка?',
+        'Как стать блоггером, который несет ценность и смыслы в массы?'
+      ];
+
+      const questionOrder = [0, 1, 2, 3, 4, 5];
+
+      const game = {
+        state: 'start',
+        score: 0,
+        jumpsCleared: 0,
+        questionsShown: 0,
+        questionQueue: [],
+        speed: 6.2,
+        gravity: 0.72,
+        groundY: 438,
+        frame: 0,
+        lastTime: 0,
+        obstacleTimer: 0,
+        obstacleDelay: 1120,
+        obstacles: [],
+        snowflakes: [],
+        clouds: []
+      };
+
+      const skate = {
+        x: 128,
+        y: 0,
+        width: 92,
+        height: 92,
+        vy: 0,
+        grounded: true,
+        rotation: 0
+      };
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+        canvas.width = Math.floor(rect.width * dpr);
+        canvas.height = Math.floor(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        game.groundY = Math.max(310, rect.height - 132);
+        if (skate.grounded) skate.y = game.groundY - skate.height;
+      }
+
+      function resetGame() {
+        game.state = 'running';
+        game.score = 0;
+        game.jumpsCleared = 0;
+        game.questionsShown = 0;
+        resetQuestionQueue();
+        game.speed = 6.2;
+        game.frame = 0;
+        game.obstacleTimer = 0;
+        game.obstacleDelay = 1300;
+        game.obstacles = [];
+        skate.y = game.groundY - skate.height;
+        skate.vy = 0;
+        skate.grounded = true;
+        skate.rotation = 0;
+        updateUi();
+        hideAllOverlays();
+      }
+
+      function hideAllOverlays() {
+        startOverlay.classList.add('hidden');
+        questionOverlay.classList.add('hidden');
+        gameOverOverlay.classList.add('hidden');
+      }
+
+      function updateUi() {
+        scoreEl.textContent = String(game.score);
+        jumpCounterEl.textContent = String(game.jumpsCleared);
+      }
+
+      function jump() {
+        if (game.state !== 'running') return;
+        if (!skate.grounded) return;
+        skate.vy = -17.5;
+        skate.grounded = false;
+      }
+
+      function resetQuestionQueue() {
+        // Оставляем функцию для перезапуска игры, но порядок больше не перемешивается
+        // и не может случайно вернуться к первой карточке на 4-м прыжке.
+        game.questionQueue = [...questionOrder];
+      }
+
+      function getNextQuestionIndex() {
+        const orderIndex = game.questionsShown % questionOrder.length;
+        return questionOrder[orderIndex];
+      }
+
+      function showQuestion() {
+        game.state = 'question';
+        const index = getNextQuestionIndex();
+        game.questionsShown += 1;
+        const displayedQuestionNumber = ((game.questionsShown - 1) % questionOrder.length) + 1;
+        questionKickerEl.textContent = `Карточка ${displayedQuestionNumber} из ${questionOrder.length}`;
+        questionTextEl.textContent = questions[index];
+        questionOverlay.classList.remove('hidden');
+      }
+
+      function continueGame() {
+        if (game.state !== 'question') return;
+        questionOverlay.classList.add('hidden');
+        game.state = 'running';
+      }
+
+      function gameOver() {
+        game.state = 'gameover';
+        finalScoreEl.textContent = String(game.score);
+        finalJumpsEl.textContent = String(game.jumpsCleared);
+        gameOverOverlay.classList.remove('hidden');
+      }
+
+      function continueAfterGameOver() {
+        if (game.state !== 'gameover') return;
+
+        gameOverOverlay.classList.add('hidden');
+        game.state = 'running';
+
+        // Убираем только опасные препятствия рядом с коньком, чтобы путь продолжился,
+        // а не начался заново и не закончился мгновенным повторным столкновением.
+        const safeX = skate.x + skate.width + 90;
+        game.obstacles = game.obstacles.filter((obstacle) => obstacle.x > safeX);
+
+        skate.y = game.groundY - skate.height;
+        skate.vy = 0;
+        skate.grounded = true;
+        skate.rotation = 0;
+
+        game.obstacleTimer = 0;
+        game.obstacleDelay = Math.max(game.obstacleDelay, 1350);
+        updateUi();
+      }
+
+      function spawnObstacle() {
+        const type = Math.random() > 0.5 ? 'ice' : 'snow';
+        const base = type === 'ice'
+          ? { width: 58 + Math.random() * 28, height: 44 + Math.random() * 22 }
+          : { width: 72 + Math.random() * 34, height: 36 + Math.random() * 20 };
+
+        game.obstacles.push({
+          type,
+          x: canvas.clientWidth + 30,
+          y: game.groundY - base.height + 8,
+          width: base.width,
+          height: base.height,
+          counted: false
+        });
+      }
+
+      function initDecor() {
+        game.snowflakes = Array.from({ length: 70 }, () => ({
+          x: Math.random() * canvas.clientWidth,
+          y: Math.random() * canvas.clientHeight,
+          r: 1 + Math.random() * 2.6,
+          speed: 0.35 + Math.random() * 1.05,
+          drift: -0.25 + Math.random() * 0.5
+        }));
+
+        game.clouds = Array.from({ length: 6 }, () => ({
+          x: Math.random() * canvas.clientWidth,
+          y: 72 + Math.random() * 120,
+          scale: 0.65 + Math.random() * 0.8,
+          speed: 0.12 + Math.random() * 0.22
+        }));
+      }
+
+      function drawBackground() {
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+
+        const sky = ctx.createLinearGradient(0, 0, 0, h);
+        sky.addColorStop(0, '#ffffff');
+        sky.addColorStop(0.55, '#eaffff');
+        sky.addColorStop(1, '#cbf4ef');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, w, h);
+
+
+        ctx.strokeStyle = 'rgba(38, 38, 74, 0.12)';
+        ctx.lineWidth = 3;
+        for (let i = 0; i < 7; i++) {
+          const y = game.groundY + 30 + i * 21;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.quadraticCurveTo(w * 0.28, y - 14, w * 0.56, y + 4);
+          ctx.quadraticCurveTo(w * 0.78, y + 18, w, y - 6);
+          ctx.stroke();
+        }
+
+        drawClouds();
+        drawSnow();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+        ctx.fillRect(0, game.groundY, w, h - game.groundY);
+
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, game.groundY + 4);
+        ctx.lineTo(w, game.groundY + 4);
+        ctx.stroke();
+
+        // Clean ice surface: only a few soft cold highlights, no pink lane stripes.
+        ctx.strokeStyle = 'rgba(129, 196, 217, 0.18)';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        for (let x = -160 + (game.frame * game.speed * 0.18) % 180; x < w + 180; x += 180) {
+          ctx.beginPath();
+          ctx.moveTo(x, game.groundY + 88);
+          ctx.quadraticCurveTo(x + 42, game.groundY + 76, x + 96, game.groundY + 84);
+          ctx.stroke();
+        }
+        ctx.lineCap = 'butt';
+      }
+
+      function drawClouds() {
+        for (const c of game.clouds) {
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.scale(c.scale, c.scale);
+
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.97)';
+          ctx.strokeStyle = 'rgba(38, 38, 74, 0.09)';
+          ctx.lineWidth = 2;
+          ctx.shadowColor = 'rgba(134, 210, 197, 0.30)';
+          ctx.shadowBlur = 14;
+          ctx.shadowOffsetY = 4;
+
+          // A single soft outline, without inner geometry lines.
+          ctx.beginPath();
+          ctx.moveTo(-18, 38);
+          ctx.bezierCurveTo(-24, 22, -12, 8, 6, 10);
+          ctx.bezierCurveTo(13, -4, 32, -9, 46, 2);
+          ctx.bezierCurveTo(55, -6, 72, -2, 78, 11);
+          ctx.bezierCurveTo(96, 12, 108, 26, 102, 42);
+          ctx.bezierCurveTo(96, 58, 72, 58, 52, 56);
+          ctx.bezierCurveTo(32, 59, 5, 58, -8, 53);
+          ctx.bezierCurveTo(-16, 50, -20, 44, -18, 38);
+          ctx.closePath();
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.stroke();
+
+          ctx.restore();
+        }
+      }
+
+      function drawSnow() {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+        for (const flake of game.snowflakes) {
+          ctx.beginPath();
+          ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function drawSkate() {
+        const cx = skate.x + skate.width / 2;
+        const cy = skate.y + skate.height / 2;
+        skate.rotation = skate.grounded ? Math.sin(game.frame / 10) * 0.025 : Math.min(0.22, skate.vy / 78);
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(skate.rotation);
+        ctx.translate(-skate.width / 2, -skate.height / 2);
+
+        // Soft shadow on the ice
+        ctx.fillStyle = 'rgba(38, 38, 74, 0.12)';
+        ctx.beginPath();
+        ctx.ellipse(52, 99, skate.grounded ? 50 : 34, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Back part of the metal blade
+        ctx.strokeStyle = '#8fb7c5';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(8, 91);
+        ctx.quadraticCurveTo(34, 99, 72, 92);
+        ctx.quadraticCurveTo(87, 89, 98, 83);
+        ctx.stroke();
+
+        // Dark lower edge of the blade
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(8, 91);
+        ctx.quadraticCurveTo(34, 99, 72, 92);
+        ctx.quadraticCurveTo(87, 89, 98, 83);
+        ctx.stroke();
+
+        // Toe pick teeth
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath();
+          ctx.moveTo(94 - i * 4, 84 + i * 1.5);
+          ctx.lineTo(99 - i * 3, 90 + i * 1.5);
+          ctx.stroke();
+        }
+
+        // Blade holders
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(29, 77);
+        ctx.lineTo(24, 91);
+        ctx.moveTo(67, 78);
+        ctx.lineTo(71, 92);
+        ctx.stroke();
+
+        // Sole and small heel
+        ctx.fillStyle = '#f0f4f6';
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(19, 72);
+        ctx.quadraticCurveTo(42, 77, 77, 73);
+        ctx.lineTo(80, 80);
+        ctx.quadraticCurveTo(49, 86, 16, 79);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#d9e1e7';
+        ctx.beginPath();
+        ctx.roundRect(17, 75, 15, 10, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        // Main boot: closer to a real figure skate, with high ankle and pointed toe
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 4;
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(24, 20);
+        ctx.quadraticCurveTo(33, 6, 51, 8);
+        ctx.quadraticCurveTo(65, 10, 68, 24);
+        ctx.quadraticCurveTo(69, 37, 65, 49);
+        ctx.quadraticCurveTo(76, 53, 88, 62);
+        ctx.quadraticCurveTo(93, 66, 88, 70);
+        ctx.quadraticCurveTo(69, 78, 40, 75);
+        ctx.quadraticCurveTo(20, 73, 13, 62);
+        ctx.lineTo(18, 43);
+        ctx.quadraticCurveTo(23, 32, 24, 20);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Inner ankle opening
+        ctx.fillStyle = '#eafcff';
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(31, 21);
+        ctx.quadraticCurveTo(40, 15, 54, 17);
+        ctx.quadraticCurveTo(59, 25, 55, 33);
+        ctx.quadraticCurveTo(43, 28, 29, 33);
+        ctx.quadraticCurveTo(28, 27, 31, 21);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Subtle boot panels
+        ctx.strokeStyle = 'rgba(38, 38, 74, 0.28)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(23, 45);
+        ctx.quadraticCurveTo(38, 52, 63, 48);
+        ctx.moveTo(22, 60);
+        ctx.quadraticCurveTo(42, 67, 80, 63);
+        ctx.stroke();
+
+        // Eyelets
+        ctx.fillStyle = '#26264a';
+        for (let i = 0; i < 5; i++) {
+          ctx.beginPath();
+          ctx.arc(35 + i * 6, 34 + i * 5, 2.1, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(48 + i * 5, 31 + i * 5, 2.1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Laces, now neutral and more realistic
+        ctx.strokeStyle = '#86d2c5';
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+        for (let i = 0; i < 5; i++) {
+          ctx.beginPath();
+          ctx.moveTo(36 + i * 6, 34 + i * 5);
+          ctx.lineTo(48 + i * 5, 31 + i * 5);
+          ctx.stroke();
+        }
+
+        // Small lace bow
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(58, 56);
+        ctx.quadraticCurveTo(49, 50, 43, 57);
+        ctx.moveTo(58, 56);
+        ctx.quadraticCurveTo(67, 50, 72, 57);
+        ctx.stroke();
+
+        // A tiny shine on the toe
+        ctx.fillStyle = 'rgba(134, 210, 197, 0.32)';
+        ctx.beginPath();
+        ctx.ellipse(75, 61, 9, 4, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawObstacle(obstacle) {
+        if (obstacle.type === 'ice') {
+          drawIceBlock(obstacle);
+        } else {
+          drawSnowdrift(obstacle);
+        }
+      }
+
+      function drawIceBlock(o) {
+        ctx.save();
+        ctx.translate(o.x, o.y);
+        ctx.fillStyle = '#c8f8ff';
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.moveTo(8, o.height);
+        ctx.lineTo(0, 18);
+        ctx.lineTo(o.width * 0.28, 0);
+        ctx.lineTo(o.width, 11);
+        ctx.lineTo(o.width - 6, o.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(38, 38, 74, 0.28)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(o.width * 0.28, 0);
+        ctx.lineTo(o.width * 0.42, o.height);
+        ctx.moveTo(o.width * 0.66, 8);
+        ctx.lineTo(o.width * 0.72, o.height - 6);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.52)';
+        ctx.beginPath();
+        ctx.moveTo(12, 22);
+        ctx.lineTo(o.width * 0.35, 9);
+        ctx.lineTo(o.width * 0.58, 14);
+        ctx.lineTo(20, 31);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawSnowdrift(o) {
+        ctx.save();
+        ctx.translate(o.x, o.y);
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#26264a';
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.moveTo(2, o.height);
+        ctx.quadraticCurveTo(o.width * 0.12, 9, o.width * 0.35, 20);
+        ctx.quadraticCurveTo(o.width * 0.54, -8, o.width * 0.75, 18);
+        ctx.quadraticCurveTo(o.width * 0.9, 12, o.width - 2, o.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(134, 210, 197, 0.68)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(o.width * 0.17, o.height * 0.68);
+        ctx.quadraticCurveTo(o.width * 0.35, o.height * 0.52, o.width * 0.5, o.height * 0.67);
+        ctx.moveTo(o.width * 0.56, o.height * 0.47);
+        ctx.quadraticCurveTo(o.width * 0.68, o.height * 0.35, o.width * 0.82, o.height * 0.54);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function getSkateHitbox() {
+        return {
+          x: skate.x + 18,
+          y: skate.y + 16,
+          width: skate.width - 24,
+          height: skate.height - 26
+        };
+      }
+
+      function getObstacleHitbox(o) {
+        return {
+          x: o.x + 6,
+          y: o.y + 6,
+          width: o.width - 12,
+          height: o.height - 8
+        };
+      }
+
+      function intersects(a, b) {
+        return a.x < b.x + b.width &&
+          a.x + a.width > b.x &&
+          a.y < b.y + b.height &&
+          a.y + a.height > b.y;
+      }
+
+      function update(delta) {
+        if (game.state !== 'running') return;
+
+        const dt = Math.min(2, delta / 16.67);
+        game.frame += dt;
+        game.score += Math.floor(dt);
+        game.speed = Math.min(13.2, game.speed + 0.0017 * dt);
+
+        skate.y += skate.vy * dt;
+        skate.vy += game.gravity * dt;
+        if (skate.y >= game.groundY - skate.height) {
+          skate.y = game.groundY - skate.height;
+          skate.vy = 0;
+          skate.grounded = true;
+        }
+
+        game.obstacleTimer += delta;
+        if (game.obstacleTimer > game.obstacleDelay) {
+          spawnObstacle();
+          game.obstacleTimer = 0;
+          game.obstacleDelay = 1150 + Math.random() * 900 - Math.min(170, game.speed * 12);
+        }
+
+        for (const obstacle of game.obstacles) {
+          obstacle.x -= game.speed * dt;
+
+          if (!obstacle.counted && obstacle.x + obstacle.width < skate.x + 10) {
+            obstacle.counted = true;
+            game.jumpsCleared += 1;
+            game.score += 35;
+            updateUi();
+
+            if (game.jumpsCleared % 2 === 0) {
+              showQuestion();
+              return;
+            }
+          }
+
+          if (intersects(getSkateHitbox(), getObstacleHitbox(obstacle))) {
+            gameOver();
+            return;
+          }
+        }
+
+        game.obstacles = game.obstacles.filter(o => o.x + o.width > -80);
+
+        for (const flake of game.snowflakes) {
+          flake.y += flake.speed * dt;
+          flake.x += flake.drift * dt;
+          if (flake.y > canvas.clientHeight + 8) {
+            flake.y = -10;
+            flake.x = Math.random() * canvas.clientWidth;
+          }
+          if (flake.x < -10) flake.x = canvas.clientWidth + 10;
+          if (flake.x > canvas.clientWidth + 10) flake.x = -10;
+        }
+
+        for (const cloud of game.clouds) {
+          cloud.x -= cloud.speed * dt;
+          if (cloud.x < -140) cloud.x = canvas.clientWidth + 120;
+        }
+
+        updateUi();
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+        drawBackground();
+        for (const obstacle of game.obstacles) drawObstacle(obstacle);
+        drawSkate();
+
+        if (game.state === 'start') {
+          drawStaticTitle();
+        }
+      }
+
+      function drawStaticTitle() {
+        ctx.save();
+        ctx.globalAlpha = 0.14;
+        ctx.fillStyle = '#ff1493';
+        ctx.font = '900 82px Arial, Helvetica, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('ПРЫЖОК', canvas.clientWidth / 2, game.groundY - 175);
+        ctx.restore();
+      }
+
+      function loop(timestamp) {
+        const delta = game.lastTime ? timestamp - game.lastTime : 16.67;
+        game.lastTime = timestamp;
+        update(delta);
+        render();
+        requestAnimationFrame(loop);
+      }
+
+      function handleAction(event) {
+        if (event) event.preventDefault();
+
+        if (game.state === 'start') {
+          resetGame();
+          return;
+        }
+
+        if (game.state === 'question') {
+          continueGame();
+          return;
+        }
+
+        if (game.state === 'gameover') {
+          continueAfterGameOver();
+          return;
+        }
+
+        jump();
+      }
+
+      startButton.addEventListener('click', handleAction);
+      continueButton.addEventListener('click', handleAction);
+      pathContinueButton.addEventListener('click', continueAfterGameOver);
+      restartButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        resetGame();
+      });
+      canvas.addEventListener('pointerdown', handleAction);
+
+      window.addEventListener('keydown', (event) => {
+        const keys = ['Space', 'ArrowUp', 'Enter'];
+        if (!keys.includes(event.code)) return;
+        if (event.repeat) return;
+        handleAction(event);
+      });
+
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        initDecor();
+        render();
+      });
+
+      resizeCanvas();
+      initDecor();
+      skate.y = game.groundY - skate.height;
+      render();
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>
