@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -132,7 +133,7 @@
       bottom: -80px;
     }
 
-    .card > * {
+    .card>* {
       position: relative;
       z-index: 1;
     }
@@ -176,6 +177,7 @@
     .question-text {
       font-size: clamp(20px, 2.6vw, 30px);
       line-height: 1.25;
+      white-space: pre-line;
       margin: 16px auto 28px;
       max-width: 680px;
       font-weight: 900;
@@ -259,6 +261,7 @@
     }
   </style>
 </head>
+
 <body>
   <main class="game-shell" aria-label="Игра про фигурный конёк">
     <div class="topbar">
@@ -270,7 +273,9 @@
 
     <section class="overlay" id="startOverlay">
       <div class="card">
-        <h1>Мечты не могут уберечь от падений. Но всегда помогают подняться</h1>
+        <h1>Мечты не могут уберечь
+          от падений.
+          Но всегда помогают подняться</h1>
         <p class="lead">© Евгения Медведева</p>
         <div class="button-row">
           <button id="startButton">Начать игру</button>
@@ -281,7 +286,8 @@
     <section class="overlay hidden" id="questionOverlay">
       <div class="card">
         <span class="kicker" id="questionKicker">Вопрос</span>
-        <h2>Пауза после прыжка</h2>
+        <h2>Пауза
+          после прыжка</h2>
         <p class="question-text" id="questionText"></p>
         <div class="button-row">
           <button id="continueButton">Продолжить игру</button>
@@ -293,7 +299,8 @@
       <div class="card">
         <span class="kicker">Финиш</span>
         <h2>Конёк зацепил препятствие</h2>
-        <p class="lead">Текущий счёт: <strong id="finalScore">0</strong>. Успешных прыжков: <strong id="finalJumps">0</strong>.</p>
+        <p class="lead">Текущий счёт: <strong id="finalScore">0</strong>. Успешных прыжков: <strong
+            id="finalJumps">0</strong>.</p>
         <div class="button-row">
           <button id="pathContinueButton">Продолжить свой путь</button>
           <button class="secondary" id="restartButton">Начать сначала</button>
@@ -325,12 +332,21 @@
       const restartButton = document.getElementById('restartButton');
 
       const questions = [
-        'Как спорт влияет на жизнь и какие правила из спорта, по Вашему опыту, можно применить не только в жизни, но и в медиа?',
-        'Как Вы сегодня сочетаете эти две разные энергии дисциплины и свободы,  не боитесь открываться аудитории?',
-        'Как Вы работаете с критикой в медиаполе? Был ли у Вас случай, когда Вы сумели превратить негативный комментарий в пользу для себя или своего контента?',
-        'Как взять новый вектор в карьере и не бояться нового этапа?',
-        'Как Вы проверяете, что новый путь действительно ваш, а не просто навязан ожиданиями аудитории, окружения или рынка?',
-        'Как стать блогером, который несет ценность и смыслы в массы?'
+        `Как спорт влияет на жизнь
+и какие правила из спорта,
+по Вашему опыту, можно применить 
+не только в жизни, но и в медиа?`,
+        `Как Вы сегодня сочетаете эти две разные энергии дисциплины
+и свободы, не боитесь открываться аудитории?`,
+        `Как Вы работаете с критикой
+в медиаполе? Был ли у Вас случай,
+когда Вы сумели превратить негативный комментарий
+в пользу для себя или своего контента?`,
+        `Как взять новый вектор в карьере
+и не бояться нового этапа?`,
+        `Как Вы проверяете, что новый 
+        путь действительно ваш, а не просто навязан ожиданиями аудитории, окружения или рынка?`,
+        `Как стать блогером, который несет ценность и смыслы в массы?`
       ];
 
       const questionOrder = [0, 1, 2, 3, 4, 5];
@@ -989,4 +1005,5 @@
     })();
   </script>
 </body>
+
 </html>
